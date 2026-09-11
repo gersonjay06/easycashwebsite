@@ -1,0 +1,157 @@
+# Personal/machine-local/scratch files (credential notes, ad-hoc local DB backups, etc.) — see
+# local/README.md for what belongs here and why this folder exists (2026-07-29). The README itself
+# is the one deliberate exception, so the folder's purpose stays documented even on a fresh clone.
+/local/*
+!/local/README.md
+
+# Node
+node_modules/
+npm-debug.log
+
+# Portal APK (TWA) signing keystore and Bubblewrap/Gradle build output - the keystore's private key
+# must never leave this machine except via a secure backup (see local/portal-apk-keystore-notes.md);
+# committing it to git would let anyone with repo access sign updates as the real app. The rest of
+# this project (build.gradle, gradlew, res/, twa-manifest.json) IS committed - it's the buildable
+# source needed to regenerate the APK for a future version bump.
+app/portalfrontend-twa/android.keystore
+app/portalfrontend-twa/*.keystore
+app/portalfrontend-twa/*.jks
+app/portalfrontend-twa/.gradle/
+app/portalfrontend-twa/app/build/
+app/portalfrontend-twa/*.apk
+app/portalfrontend-twa/*.apk.idsig
+app/portalfrontend-twa/*.aab
+
+# Environment
+.env
+.env.*
+!.env.example
+!**/.env.example
+# 2026-08-13: MIS Nomer's real production .env, dropped at legacy/env (no leading dot, so the
+# patterns above miss it) - contains live SMTP/M360 SMS gateway credentials, must never be
+# committed.
+legacy/env
+
+# Logs
+logs/
+*.log
+
+# TypeScript build cache
+*.tsbuildinfo
+
+# Word/Office lock files (created while a .docx template is open for editing, e.g.
+# app/easycashbackend/templates/~$SOME_TEMPLATE.docx) — never real content, just an open-file marker.
+~$*.doc*
+
+# Local document storage (app/easycashbackend — DOC-3 local storage adapter)
+app/easycashbackend/storage/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Old EasyCash marketing website/dashboard HTML export — no engineering reference value, unlike
+# legacy/reports/201 Loan Docs Generator/ (kept tracked, see below). Untracked 2026-07-11 to shrink
+# repo size; files remain on disk locally, just no longer pushed going forward.
+legacy/website/
+
+# Database
+legacy/mongodb/
+
+# Extracted mongodump.exe (from legacy/mongodb-ELCI-LMS_batchfile-source-code.zip) — a large
+# third-party binary, not source code; never committed.
+legacy/mongodb-tools/
+
+# Real MongoDB export used for the 2026-07-09 CP12 migration (real client names, addresses,
+# financial records) — highly sensitive PII, same class as legacy/mongodb/ above. Different casing
+# ("MongoDB dump" vs "mongodb") means it was NOT covered by the rule above until now; found
+# untracked-but-not-ignored during the 2026-07-09 session and fixed immediately, before any commit.
+legacy/MongoDB dump/
+
+# Real client case files (scanned IDs, credit bureau reports, selfies) — highly sensitive PII,
+# must never enter git history. Only the small curated subset copied into app/lmsfrontend/public/
+# for the UI preview is tracked.
+legacy/sdevtech/
+
+# Mambu (pre-SDevTech, pre-2023) MySQL export — real client names/addresses/loan data, same PII
+# class as the SDevTech dumps above. 2026-08-24: source for migrate-mambu-notes.ts's collector-note
+# recovery. Covers both the original .zip and its one-time extracted .sql.
+legacy/Easycash-*.zip
+legacy/mambu/
+
+# Legacy Excel exports (real client names/balances: Clients.xlsx, Loan Accounts Details.xlsx,
+# Daily Collection Report.xlsx, etc.) — untracked going forward, 2026-07-06 verification pass.
+# Deliberately does NOT cover legacy/reports/201 Loan Docs Generator/ — that subfolder is the
+# cited ADR-009/ADR-010 evidence base (templates + formula workbook) and stays tracked.
+legacy/reports/*.xlsx
+
+# Meta Business Suite marketing materials (~19 MB of ad images + captions doc, 2026-08-20) - the
+# source the MIS post rotation pool was seeded from (see app/easycashbackend/scripts/
+# seed-mis-post-pool.ts). Already migrated into the backend's own gitignored storage volume via
+# that seed script; keeping the originals out of git history for the same repo-size reasons as the
+# other legacy/reports/* exclusions above, not because of sensitivity.
+legacy/reports/Meta Business Suite/
+
+# The live, macro-enabled "OFFICIAL CALCULATOR OF EASYCASH" workbook (.xlsm) — this is not a
+# template, it's the company's actual current production ledger: real client names, birthdates,
+# SSS/TIN numbers, addresses, co-borrower/character-reference PII, and a full edit-history audit
+# trail, with entries as recent as this analysis. Same sensitivity class as legacy/sdevtech/ and
+# legacy/reports/*.xlsx above — must never enter git history. Added 2026-07-07 after this file was
+# found sitting untracked but NOT gitignored (the *.xlsx rule above doesn't match .xlsm).
+legacy/reports/*.xlsm
+
+# Real client PII (Manual_Checklists PDFs, Saved Loan Documents, Statements of Account — real
+# names, addresses, financial figures) plus the legal document Templates (.docx) used to generate
+# them. 2026-07-11: found untracked but NOT gitignored (same class of gap as legacy/MongoDB dump/
+# and legacy/reports/*.xlsm above — fixed immediately, before any commit). If/when the Templates
+# subfolder is needed as the canonical source for a document-generation feature, copy it
+# deliberately into the app's own source tree (e.g. app/easycashbackend/templates/) rather than reading
+# live from this ignored legacy folder or un-ignoring any part of it.
+legacy/Excel LMS Files/
+
+# pg_dump exports of the live Postgres DB (real borrower/loan PII) — used to hand off a full
+# snapshot between team members' separate local Postgres instances (e.g. MIS Nomer's laptop).
+# Same sensitivity class as legacy/MongoDB dump/ above — never committed.
+legacy/db-exports/
+# Safety net (2026-07-19): a pg_dump was found staged outside legacy/db-exports/ (app/docker/) -
+# catch any *.dump file anywhere in the repo, regardless of where it's created, since this is the
+# same real-PII sensitivity class either way.
+*.dump
+
+# 2026-08-19: backup-native-loan-applications.ts's pre-reset dumps (applicant names, addresses,
+# uploaded document metadata) - same real-PII sensitivity class as legacy/db-exports/ above, never
+# committed.
+legacy/native-backups/
+
+# Old SDevTech MongoDB backup batch/PowerShell scripts — contains a hardcoded remote DB
+# username/password (root/sdevtech2021) in plain text. Never committed to git history.
+legacy/mongodb-ELCI-LMS_batchfile-source-code.zip
+
+# Tailscale HTTPS cert/key for the frontend nginx container (2026-07-22) — machine-specific,
+# reissued locally via `tailscale cert`, never committed.
+app/docker/tailscale-certs/
+
+# Reverse-engineered MongoDB remote backup script (2026-07-10) — same hardcoded remote
+# credentials as the zip above, structurally required for mongodump to connect. Never committed.
+backup-mongodb.bat
+backup-mongodb.command
+
+# LAN-only remote Postgres backup script (2026-08-14) — same reasoning as backup-mongodb.bat:
+# has the Postgres username/password in plain text (structurally required for pg_dump to
+# connect from another device over the network). Never committed.
+backup-lms-database-remote.bat
+
+# Google Drive desktop app's own runtime upload-staging folder — machine-local, never real content.
+.tmp.driveupload/
+
+# Build
+dist/
+build/
+.next/
+coverage/
+# Claude Code — per-developer local settings (permissions/env). launch.json IS tracked (shared preview config).
+.claude/settings.local.json
